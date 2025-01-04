@@ -143,7 +143,7 @@ export default Component.extend({
 
     return new File(
       [blob],
-      `sharedrop-${new Date()
+      `hugoshare-${new Date()
         .toISOString()
         .substring(0, 19)
         .replace('T', '-')}.zip`,

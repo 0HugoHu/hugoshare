@@ -1,0 +1,21 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 22
+    commands:
+      - echo "Installing Yarn and dependencies"
+      - npm install -g yarn
+      - yarn install --frozen-lockfile --non-interactive
+  build:
+    commands:
+      - echo "Building the Ember.js project"
+      - yarn build
+artifacts:
+  files:
+    - dist/**
+    - appspec.yml
+    - scripts/**
+  discard-paths: no
+  base-directory: .
