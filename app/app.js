@@ -6,8 +6,7 @@ import * as Sentry from '@sentry/browser';
 import { Ember as EmberIntegration } from '@sentry/integrations';
 
 Sentry.init({
-  dsn:
-    'https://ba1292a9c759401dbbda4272f183408d@o432021.ingest.sentry.io/5384091',
+  dsn: 'https://ba1292a9c759401dbbda4272f183408d@o432021.ingest.sentry.io/5384091',
   integrations: [new EmberIntegration()],
 });
 

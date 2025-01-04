@@ -1,17 +1,17 @@
 {
   "name": "sharedrop",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "private": true,
   "description": "P2P file sharing",
   "license": "MIT",
-  "author": "Szymon Nowak",
+  "author": "Hugo Hu",
   "directories": {
     "doc": "doc",
     "test": "tests"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/szimek/sharedrop.git"
+    "url": "https://github.com/0HugoHu/hugoshare.git"
   },
   "scripts": {
     "build": "ember build --environment=production",
@@ -25,6 +25,10 @@
     "test:ember": "ember test"
   },
   "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/helper-compilation-targets": "^7.25.9",
+    "@babel/plugin-transform-classes": "^7.25.9",
+    "@babel/preset-env": "^7.26.0",
     "@ember/jquery": "^1.1.0",
     "@ember/optional-features": "^2.0.0",
     "@glimmer/component": "^1.0.2",
@@ -68,7 +72,8 @@
     "sass": "^1.26.11"
   },
   "dependencies": {
-    "@sentry/browser": "5.24.2",
+    "@babel/helper-function-name": "^7.24.7",
+    "@sentry/browser": "8.33.0",
     "@sentry/integrations": "5.24.2",
     "body-parser": "^1.10.0",
     "compression": "^1.2.2",
@@ -77,6 +82,7 @@
     "express": "^4.10.6",
     "firebase-token-generator": "~2.0.0",
     "jszip": "^3.5.0",
+    "levenary": "^1.1.1",
     "lodash": "^4.17.20",
     "morgan": "^1.5.0",
     "newrelic": "^6.13.1",
@@ -96,7 +102,7 @@
     ]
   },
   "engines": {
-    "node": "^14.0.0"
+    "node": "^22.0.0"
   },
   "ember": {
     "edition": "octane"

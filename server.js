@@ -97,6 +97,6 @@ http
   .listen(process.env.PORT)
   .on('listening', () => {
     console.log(
-      `Started ShareDrop web server at http://localhost:${process.env.PORT}...`,
+      `Started HugoShare web server at http://localhost:${process.env.PORT}...`,
     );
   });

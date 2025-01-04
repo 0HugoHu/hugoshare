@@ -40,9 +40,8 @@ export default Component.extend({
   init(...args) {
     this._super(args);
 
-    this.toggleTransferCompletedClass = this.toggleTransferCompletedClass.bind(
-      this,
-    );
+    this.toggleTransferCompletedClass =
+      this.toggleTransferCompletedClass.bind(this);
   },
 
   didInsertElement(...args) {
