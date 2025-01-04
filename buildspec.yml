@@ -15,6 +15,8 @@ phases:
 artifacts:
   files:
     - dist/**
+    - server.js
+    - Procfile
     - appspec.yml
     - scripts/**
   discard-paths: no

@@ -7,5 +7,5 @@ sudo dnf update -y
 curl -fsSL https://rpm.nodesource.com/setup_22.x | bash -
 sudo dnf install -y nodejs
 
-# Install Yarn and PM2 globally
-sudo npm install -g yarn pm2
+# Install Yarn globally
+sudo npm install -g yarn
