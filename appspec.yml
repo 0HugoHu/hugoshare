@@ -10,6 +10,11 @@ hooks:
       timeout: 300
       runas: root
 
+  Install:
+    - location: scripts/override_install.sh
+      timeout: 300
+      runas: root
+
   AfterInstall:
     - location: scripts/build_application.sh
       timeout: 300

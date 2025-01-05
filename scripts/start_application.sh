@@ -2,4 +2,4 @@
 
 cd /var/www/sharedrop/
 
-yarn develop
+yarn start

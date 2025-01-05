@@ -20,7 +20,7 @@
     "dev": "yarn develop",
     "lint:hbs": "ember-template-lint .",
     "lint:js": "eslint .",
-    "start": "ember serve",
+    "start": "nf --procfile=Procfile start",
     "test": "npm-run-all lint:* test:*",
     "test:ember": "ember test"
   },
