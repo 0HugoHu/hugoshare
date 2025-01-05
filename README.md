@@ -3,7 +3,7 @@
   <img alt="ShareDrop" src="https://user-images.githubusercontent.com/9873/200137972-bfd145a2-36eb-48ad-8568-53184d3599c1.svg">
 </picture>
 
-ShareDrop is a web application inspired by Apple [AirDrop](http://support.apple.com/kb/ht4783) service. It allows you to transfer files directly between devices, without having to upload them to any server first. It uses [WebRTC](http://www.webrtc.org) for secure peer-to-peer file transfer and [Firebase](https://www.firebase.com) for presence management and WebRTC signaling.
+HugoShare is a web application inspired by Apple [AirDrop](http://support.apple.com/kb/ht4783) service. It allows you to transfer files directly between devices, without having to upload them to any server first. It uses [WebRTC](http://www.webrtc.org) for secure peer-to-peer file transfer and [Firebase](https://www.firebase.com) for presence management and WebRTC signaling.
 
 ShareDrop allows you to send files to other devices in the same local network (i.e. devices with the same public IP address) without any configuration - simply open <https://www.sharedrop.io> on all devices and they will see each other. It also allows you to send files between networks - just click the `+` button in the top right corner of the page to create a room with a unique URL and share this URL with other people you want to send a file to. Once they open this page in a browser on their devices, you'll see each other's avatars.
 
