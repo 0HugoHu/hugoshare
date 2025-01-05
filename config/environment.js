@@ -46,7 +46,7 @@ module.exports = function (environment) {
   }
 
   if (environment === 'production') {
-    ENV.googleAnalyticsId = 'UA-41889586-2';
+    ENV.googleAnalyticsId = 'G-K8FJNX8J67';
   }
 
   return ENV;

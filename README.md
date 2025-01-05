@@ -27,7 +27,6 @@ The main difference between ShareDrop and AirDrop is that ShareDrop requires Int
 3.  Run `yarn` to install app dependencies.
 4.  Run `cp .env{.sample,}` to create `.env` file. This file will be used by Foreman to set environment variables when running the app locally.
     - `SECRET` key is used to encrypt cookies and generate room name based on public IP address for `/` route. It can be any random string - you can generate one using e.g. `date | md5sum`
-    - `NEW_RELIC_*` keys are only necessary in production
 5.  Run `yarn develop` to start the app.
 
 ## Deployment

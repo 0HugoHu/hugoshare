@@ -1,10 +1,5 @@
 /* eslint-env node */
 
-if (process.env.NODE_ENV === 'production') {
-  // eslint-disable-next-line global-require
-  require('newrelic');
-}
-
 // Room server
 const http = require('http');
 const path = require('path');
