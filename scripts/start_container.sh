@@ -28,7 +28,7 @@ fi
 
 # Run the new container
 echo "Running the new Docker container..."
-docker run -d --name my-app-container -p 80:8080 329599616303.dkr.ecr.us-east-2.amazonaws.com/hugoshare:latest
+docker run -d --name my-app-container -p 80:8080 --env-file /home/.env 329599616303.dkr.ecr.us-east-2.amazonaws.com/hugoshare:latest
 if [ $? -ne 0 ]; then
   echo "Failed to run the Docker container. Exiting script."
   exit 1
