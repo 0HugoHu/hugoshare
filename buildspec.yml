@@ -11,10 +11,10 @@ phases:
       - echo "Installing Docker"
       - sudo yum update -y
       - sudo yum install -y docker
-      - echo "Starting Docker service"
-      - sudo systemctl start docker
-      - sudo systemctl enable docker  # Ensures Docker starts on boot
-      - echo "Docker service started"
+      - echo "Docker installed successfully"
+      - sudo usermod -a -G docker $USER  # Add current user to Docker group
+      - newgrp docker  # Apply Docker group changes
+      - echo "Docker service not needed; proceeding with Docker commands directly"
   build:
     commands:
       - echo "Building the Ember.js project"
