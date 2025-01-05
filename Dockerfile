@@ -5,5 +5,5 @@ COPY package.json yarn.lock ./
 RUN yarn --frozen-lockfile --non-interactive
 
 COPY . /srv/app
-EXPOSE 8000
-CMD [ "yarn", "develop" ]
+EXPOSE 80
+CMD [ "yarn", "start" ]

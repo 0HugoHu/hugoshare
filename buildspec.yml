@@ -8,16 +8,24 @@ phases:
       - echo "Installing Yarn and dependencies"
       - npm install -g yarn
       - yarn install --frozen-lockfile --non-interactive
+      - echo "Installing Docker"
+      - sudo yum update -y
+      - sudo yum install -y docker
+      - sudo service docker start
   build:
     commands:
       - echo "Building the Ember.js project"
       - yarn build
+      - echo "Building Docker image"
+      - docker build -t hugoshare:latest .
+      - echo "Logging into AWS ECR"
+      - $(aws ecr get-login-password --region us-east-2) | docker login --username AWS --password-stdin 329599616303.dkr.ecr.us-east-2.amazonaws.com
+      - echo "Tagging Docker image"
+      - docker tag hugoshare:latest 329599616303.dkr.ecr.us-east-2.amazonaws.com/hugoshare:latest
+      - echo "Pushing Docker image to ECR"
+      - docker push 329599616303.dkr.ecr.us-east-2.amazonaws.com/hugoshare:latest
 artifacts:
   files:
-    - dist/**
-    - server.js
-    - Procfile
     - appspec.yml
     - scripts/**
   discard-paths: no
-  base-directory: .
