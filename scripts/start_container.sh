@@ -7,8 +7,16 @@ if ! groups ec2-user | grep &>/dev/null '\bdocker\b'; then
 fi
 
 # Stop and remove the existing container if it exists
-docker stop my-app-container || true
-docker rm my-app-container || true
+docker stop hugoshare || true
+docker rm hugoshare || true
+
+# Remove unused Docker resources to free up space
+echo "Cleaning up unused Docker resources..."
+docker system prune -f --volumes
+
+# Optionally remove dangling images to free up more space
+echo "Removing dangling images..."
+docker image prune -f
 
 # Login to AWS ECR
 echo "Logging into AWS ECR..."
@@ -28,7 +36,7 @@ fi
 
 # Run the new container
 echo "Running the new Docker container..."
-docker run -d --name my-app-container -p 80:8080 --env-file /home/.env 329599616303.dkr.ecr.us-east-2.amazonaws.com/hugoshare:latest
+docker run -d --name hugoshare -p 80:8080 --env-file /home/.env 329599616303.dkr.ecr.us-east-2.amazonaws.com/hugoshare:latest
 if [ $? -ne 0 ]; then
   echo "Failed to run the Docker container. Exiting script."
   exit 1
