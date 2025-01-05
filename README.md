@@ -29,18 +29,3 @@ The main difference between ShareDrop and AirDrop is that ShareDrop requires Int
     - `SECRET` key is used to encrypt cookies and generate room name based on public IP address for `/` route. It can be any random string - you can generate one using e.g. `date | md5sum`
 5.  Run `yarn develop` to start the app.
 
-## Deployment
-
-### Heroku
-
-Create a new Heroku app:
-
-```
-heroku create <app-name>
-```
-
-and push the app to Heroku repo:
-
-```
-git push heroku master
-```
