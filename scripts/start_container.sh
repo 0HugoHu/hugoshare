@@ -7,4 +7,4 @@ docker rm my-app-container || true
 docker pull 329599616303.dkr.ecr.us-east-2.amazonaws.com/hugoshare:latest
 
 # Run the new container
-docker run -d --name my-app-container -p 80:80 329599616303.dkr.ecr.us-east-2.amazonaws.com/hugoshare:latest
+docker run -d --name my-app-container -p 80:8080 329599616303.dkr.ecr.us-east-2.amazonaws.com/hugoshare:latest
