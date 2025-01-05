@@ -12,8 +12,8 @@ phases:
       - sudo yum update -y
       - sudo yum install -y docker
       - echo "Docker installed successfully"
-      - sudo usermod -a -G docker $USER  # Add current user to Docker group
-      - newgrp docker  # Apply Docker group changes
+      - sudo usermod -a -G docker root
+      - newgrp docker
       - echo "Docker service not needed; proceeding with Docker commands directly"
   build:
     commands:
