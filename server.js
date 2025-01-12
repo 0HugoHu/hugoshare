@@ -21,8 +21,8 @@ const callbackBaseUrl = isProduction
   : `https://localhost:${process.env.PORT}`; // Development URL
 
 const keyfileBaseUrl = isProduction
-  ? '/home/ec2-user/' // Path for production
-  : path.join(__dirname, '/'); // Path for local development
+  ? '/home/ec2-user' // Path for production
+  : path.join(__dirname, ''); // Path for local development
 
 // SSL credentials
 const privateKey = fs.readFileSync(`${keyfileBaseUrl}/privkey.pem`, 'utf8');
