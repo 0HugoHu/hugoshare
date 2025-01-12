@@ -21,7 +21,7 @@ const callbackBaseUrl = isProduction
   : `https://localhost:${process.env.PORT}`; // Development URL
 
 const keyfileBaseUrl = isProduction
-  ? '/home/ec2-user' // Path for production
+  ? '/home/ec2-user/certs' // Path for production
   : path.join(__dirname, ''); // Path for local development
 
 // SSL credentials
