@@ -2,7 +2,7 @@
 
 # Retry mechanism with a delay (e.g., 10 attempts with 5 seconds between each)
 for i in {1..10}; do
-  if curl -f http://localhost:80; then
+  if curl -f https://p2p.hugohu.site; then
     echo "Service is up"
     exit 0
   else

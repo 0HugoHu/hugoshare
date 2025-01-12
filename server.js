@@ -1,30 +1,41 @@
 /* eslint-env node */
-
-// Room server
-const http = require('http');
+const fs = require('fs');
+const https = require('https');
 const path = require('path');
 const express = require('express');
 const session = require('express-session');
+const cookieSession = require('cookie-session');
+const compression = require('compression');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const cookieSession = require('cookie-session');
-const compression = require('compression');
 const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto');
 const FirebaseTokenGenerator = require('firebase-token-generator');
 const { Issuer, generators } = require('openid-client');
 
+// Configuration
+const isProduction = process.env.NODE_ENV === 'prod';
+const callbackBaseUrl = isProduction
+  ? 'https://p2p.hugohu.site' // Production domain
+  : `https://localhost:${process.env.PORT}`; // Development URL
+
+const keyfileBaseUrl = isProduction
+  ? '/home/ec2-user/' // Path for production
+  : path.join(__dirname, '/'); // Path for local development
+
+// SSL credentials
+const privateKey = fs.readFileSync(`${keyfileBaseUrl}/privkey.pem`, 'utf8');
+const certificate = fs.readFileSync(`${keyfileBaseUrl}/fullchain.pem`, 'utf8');
+const credentials = { key: privateKey, cert: certificate };
+
+// Firebase and Cognito setup
 const firebaseTokenGenerator = new FirebaseTokenGenerator(
   process.env.FIREBASE_SECRET,
 );
-
-const app = express();
-const secret = process.env.SECRET;
-const base = ['dist'];
-
 let cognitoClient;
 
+// Initialize Cognito Client
 async function initializeCognitoClient() {
   try {
     const issuer = await Issuer.discover(
@@ -33,7 +44,7 @@ async function initializeCognitoClient() {
     cognitoClient = new issuer.Client({
       client_id: '60cpanerdf09pthdkisjlimqf4',
       client_secret: process.env.COGNITO_SECRET,
-      redirect_uris: ['http://localhost:8080/callback'],
+      redirect_uris: [`${callbackBaseUrl}/callback`],
       response_types: ['code'],
     });
     console.log('Cognito client initialized.');
@@ -42,22 +53,22 @@ async function initializeCognitoClient() {
   }
 }
 
-// Initialize Cognito client before starting the server
+// Initialize Cognito client
 initializeCognitoClient().catch(console.error);
 
-app.enable('trust proxy');
+// Express app setup
+const app = express();
+const secret = process.env.SECRET;
 
+// Middlewares
+app.enable('trust proxy');
 app.use(logger('combined'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(
   cookieSession({
-    cookie: {
-      // secure: true,
-      httpOnly: true,
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-    },
+    cookie: { httpOnly: true, maxAge: 30 * 24 * 60 * 60 * 1000 }, // 30 days
     secret,
     proxy: true,
   }),
@@ -71,30 +82,25 @@ app.use(
   }),
 );
 
+// Auth middleware
 const checkAuth = (req, res, next) => {
   req.isAuthenticated = req.session.userInfo;
   next();
 };
 
-//
-// Web server
-//
+// Static assets setup
+const base = ['dist'];
 base.forEach((dir) => {
   const subdirs = ['assets'];
-
   subdirs.forEach((subdir) => {
     app.use(
       `/${subdir}`,
-      express.static(`${dir}/${subdir}`, {
-        maxAge: 31104000000, // ~1 year
-      }),
-    );
+      express.static(path.join(dir, subdir), { maxAge: 31104000000 }),
+    ); // ~1 year
   });
 });
 
-//
-// API server
-//
+// Web routes
 app.get('/', checkAuth, (req, res) => {
   res.sendFile(path.join(__dirname, base[0], 'index.html'), () => {
     res.locals.isAuthenticated = req.isAuthenticated;
@@ -110,10 +116,10 @@ app.get('/rooms/:id', (req, res) => {
 app.get('/room', (req, res) => {
   const ip = req.headers['cf-connecting-ip'] || req.ip;
   const name = crypto.createHmac('md5', secret).update(ip).digest('hex');
-
   res.json({ name });
 });
 
+// API routes
 app.get('/api/session', (req, res) => {
   res.json({
     isAuthenticated: req.session.isAuthenticated,
@@ -122,20 +128,17 @@ app.get('/api/session', (req, res) => {
 });
 
 app.get('/auth', (req, res) => {
-  const ip = req.headers['cf-connecting-ip'] || req.ip;
   const uid = uuidv4();
   const token = firebaseTokenGenerator.createToken(
     { uid, id: uid }, // will be available in Firebase security rules as 'auth'
     { expires: 32503680000 }, // 01.01.3000 00:00
   );
-
-  res.json({ id: uid, token, public_ip: ip });
+  res.json({ id: uid, token, public_ip: req.ip });
 });
 
 app.get('/login', async (req, res) => {
   const state = generators.state();
   const nonce = generators.nonce();
-
   req.session.state = state;
   req.session.nonce = nonce;
 
@@ -151,7 +154,7 @@ app.get('/login', async (req, res) => {
 app.get('/logout', (req, res) => {
   req.session.userInfo = undefined;
   req.session.isAuthenticated = false;
-  const logoutUrl = `https://us-east-2amunjqmrs.auth.us-east-2.amazoncognito.com/logout?client_id=60cpanerdf09pthdkisjlimqf4&logout_uri=http://localhost:8080/callback`;
+  const logoutUrl = `https://us-east-2amunjqmrs.auth.us-east-2.amazoncognito.com/logout?client_id=60cpanerdf09pthdkisjlimqf4&logout_uri=${callbackBaseUrl}/callback`;
   res.redirect(logoutUrl);
 });
 
@@ -166,11 +169,12 @@ function getPathFromURL(urlString) {
   }
 }
 
-app.get(getPathFromURL('http://localhost:8080/callback'), async (req, res) => {
+// Callback route for Cognito login
+app.get(getPathFromURL(`${callbackBaseUrl}/callback`), async (req, res) => {
   try {
     const params = cognitoClient.callbackParams(req);
     const tokenSet = await cognitoClient.callback(
-      'http://localhost:8080/callback',
+      `${callbackBaseUrl}/callback`,
       params,
       {
         nonce: req.session.nonce,
@@ -180,7 +184,6 @@ app.get(getPathFromURL('http://localhost:8080/callback'), async (req, res) => {
 
     req.session.userInfo = await cognitoClient.userinfo(tokenSet.access_token);
     req.session.isAuthenticated = true;
-
     res.redirect('/');
   } catch (err) {
     console.error('Callback error:', err);
@@ -188,11 +191,7 @@ app.get(getPathFromURL('http://localhost:8080/callback'), async (req, res) => {
   }
 });
 
-http
-  .createServer(app)
-  .listen(process.env.PORT)
-  .on('listening', () => {
-    console.log(
-      `Started HugoShare web server at http://localhost:${process.env.PORT}...`,
-    );
-  });
+// Start HTTPS server
+https.createServer(credentials, app).listen(process.env.PORT, () => {
+  console.log(`Started HugoShare web server at ${callbackBaseUrl}...`);
+});

@@ -26,3 +26,7 @@
 
 # JetBrains
 /.idea/
+
+# certificates
+/fullchain.pem
+/privkey.pem
