@@ -17,7 +17,7 @@ const { Issuer, generators } = require('openid-client');
 // Configuration
 const isProduction = process.env.NODE_ENV === 'prod';
 const callbackBaseUrl = isProduction
-  ? `https://p2p.hugohu.site:${process.env.PORT}` // Production domain
+  ? `https://p2p.hugohu.site` // Production domain
   : `https://localhost:${process.env.PORT}`; // Development URL
 
 const keyfileBaseUrl = isProduction
