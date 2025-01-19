@@ -14,6 +14,7 @@ const crypto = require('crypto');
 const FirebaseTokenGenerator = require('firebase-token-generator');
 const { Issuer, generators } = require('openid-client');
 
+
 // Configuration
 const isProduction = process.env.NODE_ENV === 'prod';
 const callbackBaseUrl = isProduction
