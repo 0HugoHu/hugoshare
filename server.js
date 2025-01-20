@@ -126,6 +126,13 @@ app.get('/room', (req, res) => {
   res.json({ name });
 });
 
+app.get('/my-files', checkAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, base[0], 'index.html'), () => {
+    res.locals.isAuthenticated = req.isAuthenticated;
+    res.locals.userInfo = req.session.userInfo || {};
+  });
+});
+
 // API routes
 app.get('/api/session', (req, res) => {
   res.json({
@@ -232,18 +239,44 @@ app.get('/api/list-files', async (req, res) => {
 
   const params = {
     Bucket: 'hugo-share',
-    Prefix: `${userId}/uploads/`,
+    Prefix: `user/${userId}/uploads/`,
     MaxKeys: 20, // Number of files per request
     ContinuationToken: continuationToken || undefined,
   };
 
   try {
     const data = await s3.listObjectsV2(params).promise();
-    const files = data.Contents.map((item) => ({
-      key: item.Key,
-      lastModified: item.LastModified,
-      size: item.Size,
-    }));
+    const files = await Promise.all(
+      data.Contents.map(async (item) => {
+        const fileKey = item.Key;
+        const fileName = fileKey.split('/').pop().split('_').pop();
+
+        // Generate the signed URL here directly
+        const signedUrlParams = {
+          Bucket: 'hugo-share',
+          Key: fileKey,
+          Expires: 60, // URL expiration time (1 minute)
+        };
+
+        // Generate the signed URL for download
+        const downloadUrl = await new Promise((resolve, reject) => {
+          s3.getSignedUrl('getObject', signedUrlParams, (err, url) => {
+            if (err) {
+              reject(err);
+            }
+            resolve(url);
+          });
+        });
+
+        return {
+          key: fileKey,
+          fileName,
+          downloadUrl,
+          lastModified: item.LastModified,
+          size: item.Size,
+        };
+      }),
+    );
 
     res.json({
       files,
@@ -254,31 +287,6 @@ app.get('/api/list-files', async (req, res) => {
     console.error('Error listing files:', err);
     res.status(500).json({ error: 'Error listing files.' });
   }
-});
-
-// eslint-disable-next-line consistent-return
-app.get('/api/download-url', (req, res) => {
-  const { key } = req.query;
-
-  const userId = req.session.userInfo?.sub;
-  if (!userId || !key.startsWith(`${userId}/`)) {
-    return res.status(403).json({ error: 'Access denied.' });
-  }
-
-  const params = {
-    Bucket: 'hugo-share',
-    Key: key,
-    Expires: 60, // 1-minute expiration
-  };
-
-  // eslint-disable-next-line consistent-return
-  s3.getSignedUrl('getObject', params, (err, url) => {
-    if (err) {
-      console.error('Error generating download URL:', err);
-      return res.status(500).json({ error: 'Error generating URL.' });
-    }
-    res.json({ url });
-  });
 });
 
 // Start HTTPS server

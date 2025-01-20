@@ -1,0 +1,18 @@
+<main class="l-content" style="padding: 20px; margin-top: 64px; font-family: Arial, sans-serif;">
+  <h2 style="font-size: 2rem; margin-bottom: 20px;">Your Files</h2>
+
+  {{#each model as |file|}}
+    <div class="file-entry" style="margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px;">
+      <div class="file-bubble"
+           style="max-width: 100%; padding: 10px; border-radius: 10px; background-color: #f1f1f1; box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); margin: 5px 0;">
+        <span style="font-size: 16px; color: #333; display: block;">{{file.fileName}}</span>
+        <a href="{{file.downloadUrl}}" target="_blank"
+           style="color: #007bff; text-decoration: none; font-size: 16px; display: block; margin-top: 5px;">Download</a>
+        <div style="font-size: 12px; color: #888; margin-top: 5px;">{{format-date file.lastModified}}</div>
+      </div>
+    </div>
+  {{/each}}
+
+  <!-- Pass fileHistory to the file-history component as an argument -->
+  <FileHistory @history={{this.fileHistory}} />
+</main>

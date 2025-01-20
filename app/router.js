@@ -25,3 +25,8 @@ Router.map(function () {
     path: '/rooms/:room_id',
   });
 });
+
+// eslint-disable-next-line array-callback-return
+Router.map(function () {
+  this.route('my-files');
+});

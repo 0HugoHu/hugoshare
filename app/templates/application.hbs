@@ -1,13 +1,13 @@
 <header class="l-header">
   <nav class="navbar">
     <h1 class="logo">
-      <span class="logo-title">HugoShare</span>
-      <span class="logo-subtitle">P2P file transfer</span>
+      <a class="logo-title" href="/">HugoShare</a>
+      <a class="logo-subtitle" href="/">P2P file transfer</a>
     </h1>
 
     <ul class="nav">
       <li>
-        <a href="javascript:void(0)" class="icon-create-room" {{action "redirect"}} title="Create a private room.">Private Room</a>
+        <a href="javascript:void(0)" class="icon-create-room" {{action "redirect"}} title="Create a private room.">Room</a>
       </li>
       <li>
         <a href="javascript:void(0)" class="icon-help" {{action "openModal" "about_app"}} title="About">?</a>
@@ -15,7 +15,7 @@
 
       {{#if isAuthenticated}} <!-- If the user is logged in -->
         <li>
-          <a href="/my-files" class="icon-my-files" title="Go to your files">My Files</a>
+          <a href="/my-files" class="icon-my-files" title="Go to your files">File</a>
         </li>
         <li>
           <a href="/logout" class="icon-logout" title="Log out">Log Out</a>
