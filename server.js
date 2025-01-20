@@ -11,19 +11,22 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto');
+const AWS = require('aws-sdk');
 const FirebaseTokenGenerator = require('firebase-token-generator');
 const { Issuer, generators } = require('openid-client');
-
 
 // Configuration
 const isProduction = process.env.NODE_ENV === 'prod';
 const callbackBaseUrl = isProduction
-  ? `https://p2p.hugohu.site` // Production domain
-  : `https://localhost:${process.env.PORT}`; // Development URL
+  ? `https://p2p.hugohu.site`
+  : `https://localhost:${process.env.PORT}`;
 
 const keyfileBaseUrl = isProduction
-  ? '/home/ec2-user/certs' // Path for production
-  : path.join(__dirname, ''); // Path for local development
+  ? '/home/ec2-user/certs'
+  : path.join(__dirname, '');
+
+// Configure AWS SDK
+const s3 = new AWS.S3();
 
 // SSL credentials
 const privateKey = fs.readFileSync(`${keyfileBaseUrl}/privkey.pem`, 'utf8');
@@ -84,10 +87,13 @@ app.use(
 );
 
 // Auth middleware
+// eslint-disable-next-line consistent-return
 const checkAuth = (req, res, next) => {
   req.isAuthenticated = req.session.userInfo;
   next();
 };
+
+app.use('/api', checkAuth);
 
 // Static assets setup
 const base = ['dist'];
@@ -190,6 +196,89 @@ app.get(getPathFromURL(`${callbackBaseUrl}/callback`), async (req, res) => {
     console.error('Callback error:', err);
     res.redirect('/');
   }
+});
+
+// eslint-disable-next-line consistent-return
+app.post('/api/get-presigned-url', (req, res) => {
+  const { key, fileType } = req.body;
+
+  const params = {
+    Bucket: 'hugo-share',
+    Key: key,
+    Expires: 60, // URL expiration time in seconds
+    ContentType: fileType,
+  };
+
+  // Generate the pre-signed URL
+  // eslint-disable-next-line consistent-return
+  s3.getSignedUrl('putObject', params, (err, url) => {
+    if (err) {
+      return res
+        .status(500)
+        .json({ error: 'Failed to generate pre-signed URL' });
+    }
+    res.json({ presignedUrl: url });
+  });
+});
+
+// eslint-disable-next-line consistent-return
+app.get('/api/list-files', async (req, res) => {
+  const { continuationToken } = req.query;
+
+  const userId = req.session.userInfo?.sub;
+  if (!userId) {
+    return res.status(401).json({ error: 'User not authenticated.' });
+  }
+
+  const params = {
+    Bucket: 'hugo-share',
+    Prefix: `${userId}/uploads/`,
+    MaxKeys: 20, // Number of files per request
+    ContinuationToken: continuationToken || undefined,
+  };
+
+  try {
+    const data = await s3.listObjectsV2(params).promise();
+    const files = data.Contents.map((item) => ({
+      key: item.Key,
+      lastModified: item.LastModified,
+      size: item.Size,
+    }));
+
+    res.json({
+      files,
+      isTruncated: data.IsTruncated,
+      nextContinuationToken: data.NextContinuationToken,
+    });
+  } catch (err) {
+    console.error('Error listing files:', err);
+    res.status(500).json({ error: 'Error listing files.' });
+  }
+});
+
+// eslint-disable-next-line consistent-return
+app.get('/api/download-url', (req, res) => {
+  const { key } = req.query;
+
+  const userId = req.session.userInfo?.sub;
+  if (!userId || !key.startsWith(`${userId}/`)) {
+    return res.status(403).json({ error: 'Access denied.' });
+  }
+
+  const params = {
+    Bucket: 'hugo-share',
+    Key: key,
+    Expires: 60, // 1-minute expiration
+  };
+
+  // eslint-disable-next-line consistent-return
+  s3.getSignedUrl('getObject', params, (err, url) => {
+    if (err) {
+      console.error('Error generating download URL:', err);
+      return res.status(500).json({ error: 'Error generating URL.' });
+    }
+    res.json({ url });
+  });
 });
 
 // Start HTTPS server

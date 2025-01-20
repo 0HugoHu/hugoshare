@@ -2,8 +2,11 @@
 // - provide TURN server config once it's possible to create rooms with custom names
 // - use Ember.Object.extend()
 
+import AWS from 'aws-sdk';
 import $ from 'jquery';
 import File from './file';
+
+const s3 = new AWS.S3();
 
 const WebRTC = function (id, options) {
   const defaults = {
@@ -49,6 +52,68 @@ const WebRTC = function (id, options) {
 
 WebRTC.CHUNK_MTU = 16000;
 WebRTC.CHUNKS_PER_ACK = 64;
+
+// Method to upload file to S3 using pre-signed URL
+// eslint-disable-next-line consistent-return
+WebRTC.prototype.uploadToS3 = async function (file) {
+  let userId;
+  try {
+    const response = await fetch('/api/session');
+    if (response.ok) {
+      const data = await response.json();
+      userId = data.userInfo?.sub;
+    }
+  } catch (error) {
+    console.error('Failed to fetch user info:', error);
+  }
+
+  // Determine the directory based on whether the user is logged in
+  const basePath = userId ? `user/${userId}/uploads` : `anonymous/uploads`;
+  const key = `${basePath}/${new Date().getFullYear()}/${String(
+    new Date().getMonth() + 1,
+  ).padStart(2, '0')}/${Date.now()}_${file.name}`;
+
+  // Request pre-signed URL from the server
+  let presignedUrl;
+  try {
+    const presignedResponse = await fetch('/api/get-presigned-url', {
+      method: 'POST',
+      body: JSON.stringify({ key, fileType: file.type }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (presignedResponse.ok) {
+      const data = await presignedResponse.json();
+      presignedUrl = data.presignedUrl; // The pre-signed URL from the server
+    } else {
+      throw new Error('Failed to obtain pre-signed URL');
+    }
+  } catch (error) {
+    console.error('Failed to get pre-signed URL:', error);
+    throw error;
+  }
+
+  // Now upload the file to S3 using the pre-signed URL
+  try {
+    const uploadResponse = await fetch(presignedUrl, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': file.type,
+      },
+      body: file,
+    });
+
+    if (uploadResponse.ok) {
+      console.log('File successfully uploaded to S3');
+      $.publish('file_uploaded.s3', { file, s3Url: presignedUrl });
+      return presignedUrl; // The S3 file URL
+    }
+  } catch (err) {
+    console.error('Error uploading file to S3:', err);
+    throw err;
+  }
+};
 
 WebRTC.prototype.connect = function (id) {
   const connection = this.conn.connect(id, {
@@ -245,13 +310,15 @@ WebRTC.prototype.sendFileResponse = function (connection, response) {
   }
 };
 
-WebRTC.prototype.sendFile = function (connection, file) {
+WebRTC.prototype.sendFile = async function (connection, file) {
   // Save the file for later
   this.files.outgoing[connection.peer] = {
     file,
     info: this.getFileInfo(file),
   };
 
+  // Send file to s3
+  await this.uploadToS3(file);
   // Send the first block. Next ones will be requested by recipient.
   this._sendBlock(connection, file, 0);
 };
