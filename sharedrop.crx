@@ -1,17 +1,17 @@
 {
   "name": "HugoShare",
-  "description": "Simple file sharing",
+  "description": "Simple file sharing and storage",
   "version": "1",
   "app": {
     "urls": [
-      "https:/www.sharedrop.io/"
+      "https:p2p.hugohu.site/"
     ],
     "launch": {
-      "web_url": "https:/www.sharedrop.io/"
+      "web_url": "https:p2p.hugohu.site"/"
     }
   },
   "icons": {
-    "128": "sharedrop-icon-128.png"
+    "196": "hugoshare-icon-196x196.png"
   },
   "permissions": [
     "notifications"

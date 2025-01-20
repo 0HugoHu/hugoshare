@@ -1,48 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>HugoShare</title>
-    <meta
-      name="description"
-      content="HugoShare is a peer-to-peer file sharing app powered by HTML5 WebRTC."
-    />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+<head>
+  <meta charset="utf-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <title>HugoShare</title>
+  <meta
+    name="description"
+    content="HugoShare is a peer-to-peer file sharing app powered by HTML5 WebRTC."
+  />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
-    <meta name="mobile-web-app-capable" content="yes" />
-    <link
-      rel="shortcut icon"
-      sizes="196x196"
-      href="{{rootURL}}assets/images/sharedrop-icon.png"
-    />
-    <link
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <link
+    rel="shortcut icon"
+    sizes="196x196"
+    href="{{rootURL}}assets/images/hugoshare-icon-196x196.png"
+  />
+  <link
     rel="apple-touch-icon"
     sizes="196x196"
-    href="{{rootURL}}assets/images/sharedrop-icon.png"
-    />
+    href="{{rootURL}}assets/images/hugoshare-icon-196x196.png"
+  />
 
-    {{content-for "head"}}
+  {{content-for "head"}}
 
-    <link integrity="" rel="stylesheet" href="{{rootURL}}assets/vendor.css" />
-    <link
-      integrity=""
-      rel="stylesheet"
-      href="{{rootURL}}assets/sharedrop.css"
-    />
+  <link integrity="" rel="stylesheet" href="{{rootURL}}assets/vendor.css"/>
+  <link
+    integrity=""
+    rel="stylesheet"
+    href="{{rootURL}}assets/sharedrop.css"
+  />
 
-    {{content-for "head-footer"}}
-  </head>
+  {{content-for "head-footer"}}
+</head>
 
-  <body>
-    <div class="preloader"><span>Loading...</span></div>
+<body>
+<div class="preloader"><span>Loading...</span></div>
 
-    {{content-for "body"}}
+{{content-for "body"}}
 
-    <script src="https://cdn.firebase.com/js/client/2.2.9/firebase.js"></script>
-    <script src="{{rootURL}}assets/vendor.js"></script>
-    <script src="{{rootURL}}assets/sharedrop.js"></script>
+<script src="https://cdn.firebase.com/js/client/2.2.9/firebase.js"></script>
+<script src="{{rootURL}}assets/vendor.js"></script>
+<script src="{{rootURL}}assets/sharedrop.js"></script>
 
-    {{content-for "body-footer"}}
-  </body>
+{{content-for "body-footer"}}
+</body>
 </html>
