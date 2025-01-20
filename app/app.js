@@ -11,6 +11,16 @@ export default class App extends Application {
   podModulePrefix = config.podModulePrefix;
 
   Resolver = Resolver;
+
+  constructor() {
+    // eslint-disable-next-line prefer-rest-params
+    super(...arguments);
+    if (window.gtag && typeof window.gtag === 'function') {
+      window.gtag('event', 'page_view', {
+        page_path: window.location.pathname,
+      });
+    }
+  }
 }
 
 loadInitializers(App, config.modulePrefix);
